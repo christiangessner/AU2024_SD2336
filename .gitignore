@@ -396,3 +396,9 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Passwords and other sensitive data
+*appsettings.Development.json
+
+# Mac hidden files
+*.DS_Store
