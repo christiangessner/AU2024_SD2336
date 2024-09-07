@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css" >
+    <link rel="stylesheet" href="/fonts.css">
+    <link rel="stylesheet" href="/main.css">
+    <title>COOLORANGE Manufacturing Data Model BOM</title>
+</head>
+
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <div id="loadingText"></div>
+    </div>
+
+    <div id="content">
+        <div id="header">
+            <img class="logo" src="/images/coolorange.svg" alt="COOLORANGE">
+            <span class="title">Bill of Materials Transfer</span>
+            <span class="buttons">
+                <button class="button" id="reset">Reset</button>
+                <button class="button" id="check">Check</button>
+                <button class="button" id="transfer">Transfer</button>    
+            </span>
+        </div>
+        <div id="bom"></div>
+    </div>
+
+    <script src="https://unpkg.com/axios@1.6.7/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
+    <script src="/main.js" type="module"></script>
+</body>
+
+</html>

@@ -402,3 +402,6 @@ FodyWeavers.xsd
 
 # Mac hidden files
 *.DS_Store
+
+# VS Code
+*.vscode

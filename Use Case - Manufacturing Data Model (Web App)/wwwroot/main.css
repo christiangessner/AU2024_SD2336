@@ -1,0 +1,131 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: ArtifaktElement;
+    justify-content: center;
+}
+
+#loading {
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transform: translateY(-50%);
+    left: 50%;
+    transform: translateX(-50%);
+    top: -o-calc(50% - 75px); /* opera */
+    top: -webkit-calc(50% - 75px); /* google, safari */
+    top: -moz-calc(50% - 75px); /* firefox */
+}
+
+.spinner {
+    background-image: url("/images/spinner.svg");
+    height: 100px;
+    width: 100px;
+    align-self: center;
+    margin: 0 auto;
+}
+
+.statusImage {
+    height: 16px;
+    width: 16px;
+    align-self: center;
+    margin: 0;
+    padding: 0;
+    margin-top: 2px;
+}
+
+.thumbnailImage {
+    height: 22px;
+    width: 22px;
+    align-self: center;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #a3a3a3;
+}
+
+.buttons {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-content: center;
+    align-items: center;
+}
+
+.button {
+    font-family: ArtifaktElement;
+    font-size: 0.8em;
+    float: right;
+    width: 120px;
+    margin: 5px;
+}
+
+#header, #bom {
+    position: absolute;
+}
+
+#header {
+    height: 42px;
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-content: center;
+    align-items: center;
+    background-color: #505050;
+    color: white;
+}
+
+#bom {
+    top: 42px;
+    bottom: 0px;    
+    margin: 0px;
+    padding: 0px;
+    left: 0;
+    right: 0;
+
+    /*width: -o-calc(100% - 4px); /* opera */
+    /*width: -webkit-calc(100% - 4px); /* google, safari */
+    /*width: -moz-calc(100% - 4px); /* firefox */
+
+    height: -o-calc(100% - 42px); /* opera */
+    height: -webkit-calc(100% - 42px); /* google, safari */
+    height: -moz-calc(100% - 42px); /* firefox */
+}
+
+#header > * {
+    height: 2em;
+    margin: 0 0.5em;
+}
+
+#login {
+    font-size: 1em;
+    margin: 15px;
+    align-content: center;
+    margin-right: 15px;
+    visibility: hidden;
+    width: 0px;
+}
+
+#header .title {
+    height: auto;
+    margin-right: auto;
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+#header .logo {
+    margin-left: 10px;
+    margin-right: 20px;
+    height: 26px;
+}
+
+/* Tabulator */
+.tabulator  {
+    background-color: #a3a3a3;
+}
+
+.tabulator .tabulator-row:hover {
+    background-color: #c3e8ff;
+}
