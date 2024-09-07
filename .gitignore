@@ -405,3 +405,6 @@ FodyWeavers.xsd
 
 # VS Code
 *.vscode
+
+# Python
+*.env

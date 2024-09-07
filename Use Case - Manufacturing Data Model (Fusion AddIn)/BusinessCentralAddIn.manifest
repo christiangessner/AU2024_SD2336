@@ -1,0 +1,13 @@
+{
+	"autodeskProduct":	"Fusion",
+	"type":	"addin",
+	"id":	"3c47de22-cdf7-4304-b773-9aa54a7dcf8c",
+	"author":	"Christian Gessner",
+	"description":	{
+		"":	"COOLORANGE Business Central BOM Transfer"
+	},
+	"version":	"1.0",
+	"runOnStartup":	true,
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
