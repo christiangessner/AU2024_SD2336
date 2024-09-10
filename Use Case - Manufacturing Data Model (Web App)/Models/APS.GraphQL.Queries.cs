@@ -57,10 +57,10 @@ public partial class APS
         return root.Data.Hub.PropertyDefinitionCollections.Results;
     }
 
-    public async Task<TipRoot.ComponentVersion> GetTipRootComponentVersion(string projectId, string itemId, string propName, Tokens tokens)
+    public async Task<TipRoot.ComponentVersion> GetTipRootComponentVersion(string hubId, string itemId, string propName, Tokens tokens)
     {
-        var query = @"query GetTipRootComponentVersion($projectId: ID!, $itemId: ID!, $propName: [String!]!) {
-            item(projectId: $projectId, itemId: $itemId) {
+        var query = @"query GetTipRootComponentVersion($hubId: ID!, $itemId: ID!, $propName: [String!]!) {
+            item(hubId: $hubId, itemId: $itemId) {
                 ... on DesignItem {
                     tipRootComponentVersion {
                         ...commonProps
@@ -100,7 +100,7 @@ public partial class APS
         }";
         var variables = new
         {
-            projectId,
+            hubId,
             itemId,
             propName
         };

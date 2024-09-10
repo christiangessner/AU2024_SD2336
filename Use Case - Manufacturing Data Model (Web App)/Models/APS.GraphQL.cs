@@ -8,10 +8,10 @@ public partial class APS
         var projectId = project.ProjectByDataManagementAPIId.Id;
         var hubId = project.ProjectByDataManagementAPIId.Hub.Id;
         var propertyDefinitionCollections = await GetPropertyDefinitionCollections(hubId, tokens);
-        var propertyDefinitions = propertyDefinitionCollections.SelectMany(pdc => pdc.Definitions.Results).ToList();
-        var propertyDefinition = propertyDefinitions.Single(pd => pd.Name == CustomPropertyName);
+        var propertyDefinitions = propertyDefinitionCollections.SelectMany(pdc => pdc.Definitions.Results)?.ToList();
+        var propertyDefinition = propertyDefinitions?.Single(pd => pd.Name == CustomPropertyName);
 
-        var tipRootComponentVersion = await GetTipRootComponentVersion(projectId, itemId, CustomPropertyName, tokens);
+        var tipRootComponentVersion = await GetTipRootComponentVersion(hubId, itemId, CustomPropertyName, tokens);
 
         void CreateBomStructure(BomRow bomRow, ComponentVersion componentVersion)
         {
