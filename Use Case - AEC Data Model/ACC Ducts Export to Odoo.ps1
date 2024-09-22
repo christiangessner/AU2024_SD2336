@@ -33,8 +33,8 @@ $odooPassword = ""
 # Log file
 $logFile = "C:\temp\ACC Ducts Export to Odoo.txt"
 
-# Standard lengths of ducts in inches
-$standardLengths = @(480, 240, 120, 60, 48, 24, 12, 6)
+# Standard length of duct pipes in inches
+$standardLength = 120
 #endregion
 
 #region Logging Functions
@@ -438,7 +438,7 @@ function Add-OdooDelivery($sourceDocument) {
     return Invoke-OdooDataSetCall $body
 }
 
-function Add-OdooStockMove ($odooDeliveryId, $odooProductId, $count, $description) {
+function Add-OdooStockMove ($odooDeliveryId, $odooProductId, $count, $description = "") {
     $body = @"
         {
         "jsonrpc": "2.0",
@@ -482,7 +482,7 @@ $apsParameters = @{
     "Username" = $username
     "Password" = $password
 }
-#Close-APSConnection
+
 $result = Open-APSConnection @apsParameters -Express #-Visible
 if (-not $result) {
     throw "Cannot open connection"
@@ -562,14 +562,13 @@ foreach ($submittal in $submittals) {
             
                     $props += @{"Name" = "" }
                     $props += @{"StandardLength" = 0 }
-                    $props += @{"Waste" = @() }
                     $props += @{"Count" = 1 }
                     $ductObject = New-Object PsObject -Property $props
                     $ductObjects += $ductObject
                 }
             } while ($cursor)
 
-            Update-ApsItemLocked $project $item $true
+            Update-ApsItemLocked $project $item $true | Out-Null
         }
 
         if ($ductObjects.Count -eq 0) {
@@ -582,9 +581,8 @@ foreach ($submittal in $submittals) {
         foreach ($ductObject in $ductObjects) {
             $length = $ductObject.Length
             if ($length) {
-                $standardLength = ($standardLengths | Where-Object { $_ -ge $length } | Measure-Object -Minimum).Minimum
+                $ductObject.Length = $length
                 $ductObject.StandardLength = $standardLength
-                $ductObject.Waste = $standardLength - $length
             }
 
             if ($ductObject.Diameter) {
@@ -601,70 +599,38 @@ foreach ($submittal in $submittals) {
 
         Write-Log "Total ducts: $($ductObjects.Count)"
 
-        # Group results to get the right order, the overall count, the waste pieces and the worst total waste
+        # Group results to get the right order, the right length, the total count and the waste
         $groupedDuctObjects = $ductObjects | 
         Group-Object 'Name', 'StandardLength' |
         ForEach-Object {
+            if ($_.Group[0].StandardLength -eq 0) {
+                $count = ($_.Group | Measure-Object -Property Count -Sum).Sum
+                $waste = 0
+                $length = $null
+                $name = $_.Group[0].Name
+            }
+            else {
+                $count = [Math]::Ceiling(($_.Group | Measure-Object -Property Length -Sum).Sum / $_.Group[0].StandardLength)
+                $waste = $count * $_.Group[0].StandardLength - ($_.Group | Measure-Object -Property Length -Sum).Sum
+                $length = ($_.Group | Measure-Object -Property Length -Sum).Sum
+                $name = if ($_.Group[0].StandardLength -gt 0) { "$($_.Group[0].Name) ($($_.Group[0].StandardLength)`")" } else { $_.Group[0].Name }
+            } 
+
             [PSCustomObject]@{
-                'Name'           = $_.Group[0].Name
-                'StandardLength' = $_.Group[0].StandardLength
-                'InitCount'      = ($_.Group | Measure-Object -Property Count -Sum).Sum
-                'Count'          = ($_.Group | Measure-Object -Property Count -Sum).Sum
-                'TotalWaste'     = ($_.Group | ForEach-Object { $_.Waste } | Measure-Object -Sum).Sum
-                'Leftovers'    = @($_.Group | Sort-Object Waste -Descending | ForEach-Object { $_.Waste })
+                'Name'   = $name
+                'Length' = $length
+                'Count'  = $count
+                'Waste'  = [Math]::Round($waste, 2)
             }
         } | Sort-Object 'Name', 'StandardLength'
+        $groupedDuctObjects | Format-Table -AutoSize
 
-        # Temporary polish and display the results
-        $polishedDuctObjects = $groupedDuctObjects |
-        ForEach-Object {
-            [PSCustomObject]@{
-                'Name'       = if ($_.StandardLength -gt 0) { "$($_.Name) ($($_.StandardLength)`")" } else { $_.Name }
-                'InitCount'  = $_.InitCount
-                'Count'      = $_.Count
-                'TotalWaste' = if ($_.TotalWaste -gt 0) { [Math]::Round($_.TotalWaste, 1) } else { "" }
-                'Leftovers'  = ($_.Leftovers | Where-Object { $_ -ge 6 } | ForEach-Object { "$([Math]::Round($_, 1))`"" }) -join ", "
-            }
-        } | Select-Object 'Name', 'InitCount', 'Count', 'TotalWaste', 'Leftovers'
+        Write-Log "Total duct objects: $($ductObjects.Count)"
+        Write-Log "Unique duct objects: $($groupedDuctObjects.Count)"
+        Write-Log "Total duct pipe length: $(($ductObjects | Measure-Object -Property Length -Sum).Sum)`""
+        Write-Log "Total duct pipe waste: $(($groupedDuctObjects | Measure-Object -Property Waste -Sum).Sum)`""
 
-        #$polishedDuctObjects | Format-Table -AutoSize
-        Write-Log "Total waste without re-usage of leftovers: $([Math]::Round(($polishedDuctObjects.TotalWaste | Measure-Object -Sum | Select-Object -ExpandProperty Sum), 0))`""
-
-        # Re-use the waste where possible
-        foreach ($groupedDuctObject in $groupedDuctObjects) {
-            if ($groupedDuctObject.StandardLength -eq 0) {
-                continue
-            }
-            
-            for ($i = 0; $i -lt $groupedDuctObject.Leftovers.Count; $i++) {
-                do {
-                    $leftover = $groupedDuctObject.Leftovers[$i]
-                    $closestLength = ($groupedDuctObjects | Where-Object { $_.'Name' -eq $groupedDuctObject.Name -and $_.Count -gt 0 -and $leftover -gt $_.StandardLength } | 
-                        Select-Object -ExpandProperty StandardLength | Measure-Object -Maximum).Maximum
-                    $ductToReplace = $groupedDuctObjects | Where-Object { $_.'Name' -eq $groupedDuctObject.Name -and $_.Count -gt 0 -and $_.StandardLength -eq $closestLength }
-                    if ($ductToReplace) {
-                        $ductToReplace.Count--
-                        $groupedDuctObject.Leftovers[$i] = $groupedDuctObject.Leftovers[$i] - $ductToReplace.StandardLength
-                        $groupedDuctObject.TotalWaste = $groupedDuctObject.TotalWaste - $ductToReplace.StandardLength
-                    }
-                } while ($ductToReplace)
-            }
-        }
-
-        $uniqueDuctObjects = $groupedDuctObjects |
-        ForEach-Object {
-            [PSCustomObject]@{
-                'Name'       = if ($_.StandardLength -gt 0) { "$($_.Name) ($($_.StandardLength)`")" } else { $_.Name }
-                'InitCount'  = $_.InitCount
-                'Count'      = $_.Count
-                'TotalWaste' = if ($_.TotalWaste -gt 0) { [Math]::Round($_.TotalWaste, 1) } else { "" }
-                'Leftovers'  = ($_.Leftovers | Where-Object { $_ -ge 6 } | ForEach-Object { "$([Math]::Round($_, 1))`"" }) -join ", "
-            }
-        } | Where-Object { $_.Count -gt 0 } | Select-Object 'Name', 'InitCount', 'Count', 'TotalWaste', 'Leftovers'
-        $uniqueDuctObjects | Format-Table -AutoSize
-
-        Write-Log "Total waste including re-usage of leftovers: $([Math]::Round(($uniqueDuctObjects.TotalWaste | Measure-Object -Sum | Select-Object -ExpandProperty Sum), 0))`""
-        Write-Log "$($uniqueDuctObjects.Count) unique ducts found in $($relationships.Count) file(s)!"
+        Write-Log "$($groupedDuctObjects.Count) unique ducts found in $($relationships.Count) file(s)!"
 
         $creatingCount = 0;
         $existingCount = 0;
@@ -674,7 +640,7 @@ foreach ($submittal in $submittals) {
         Write-Log "Delivery created in Odoo: $($submittal.title)"
         $odooProducts = Get-OdooProducts
         
-        foreach ($d in $uniqueDuctObjects) {
+        foreach ($d in $groupedDuctObjects) {
             $odooProduct = @($odooProducts | Where-Object { $_.name -eq $d.Name })[0]
             if (-not $odooProduct) {
                 $odooProductId = Add-OdooProduct($d.Name)
@@ -686,11 +652,14 @@ foreach ($submittal in $submittals) {
 
             $d | Add-Member -MemberType NoteProperty -Name "OdooProductId" -Value $odooProductId -Force
             
-            $odooStockMoveId = Add-OdooStockMove $odooDeliveryId $d.OdooProductId $d.Count $d.Leftovers
+            $odooStockMoveId = Add-OdooStockMove $odooDeliveryId $d.OdooProductId $d.Count
+            $odooStockMoveId | Out-Null
         }
         Write-Log "$creatingCount new product(s) created and $existingCount product(s) existed in Odoo"
-        Write-Log "$($uniqueDuctObjects.Count) product(s) added to the new delivery (Id $($odooDeliveryId))"
+        Write-Log "$($groupedDuctObjects.Count) product(s) added to the new delivery (Id $($odooDeliveryId))"
     }
 }
 
-Write-Log "Finished ACC Ducts Export to Odoo Deliveries"
+Close-APSConnection
+
+Write-Log "Finished APS Task Scheduler Job"
