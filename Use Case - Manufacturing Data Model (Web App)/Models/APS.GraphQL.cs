@@ -10,6 +10,8 @@ public partial class APS
         var propertyDefinitionCollections = await GetPropertyDefinitionCollections(hubId, tokens);
         var propertyDefinitions = propertyDefinitionCollections.SelectMany(pdc => pdc.Definitions.Results)?.ToList();
         var propertyDefinition = propertyDefinitions?.Single(pd => pd.Name == CustomPropertyName);
+        if (propertyDefinition == null)
+            throw new Exception($"Property Definition {CustomPropertyName} not found");
 
         var tipRootComponentVersion = await GetTipRootComponentVersion(hubId, itemId, CustomPropertyName, tokens);
 
@@ -73,7 +75,10 @@ public partial class APS
         {
             counter--;
             componentVersion = await GetComponentVersionAsyncData(componentVersionId, tokens);
-            success = componentVersion.Thumbnail.Status == "SUCCESS" && componentVersion.PhysicalProperties.Status == "COMPLETED";
+            success = 
+                componentVersion.Thumbnail.Status == "SUCCESS" && 
+                componentVersion.PhysicalProperties.Status == "COMPLETED";
+            
             if (!success)
                 await Task.Delay(1000);
         }

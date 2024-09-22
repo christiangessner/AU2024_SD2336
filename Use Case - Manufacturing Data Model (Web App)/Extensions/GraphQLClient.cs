@@ -5,7 +5,6 @@ using RestSharp.Serializers.NewtonsoftJson;
 public class GraphQLClient
 {
     private readonly string _endpoint;
-
     private readonly RestClient _client;
 
     public GraphQLClient(string endpoint)

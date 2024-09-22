@@ -1,3 +1,5 @@
+#pragma warning disable CS8601 // Possible null reference assignment.
+#pragma warning disable CS8604 // Possible null reference argument.
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -19,6 +21,7 @@ public class AuthController : ControllerBase
         {
             return null;
         }
+
         var tokens = new Tokens
         {
             PublicToken = request.Cookies["public_token"],
@@ -26,6 +29,7 @@ public class AuthController : ControllerBase
             RefreshToken = request.Cookies["refresh_token"],
             ExpiresAt = DateTime.Parse(request.Cookies["expires_at"])
         };
+
         if (tokens.ExpiresAt < DateTime.Now.ToUniversalTime())
         {
             tokens = await aps.RefreshTokens(tokens);
