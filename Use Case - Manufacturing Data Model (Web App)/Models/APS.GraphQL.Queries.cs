@@ -94,7 +94,7 @@ public partial class APS
         var cursor = root.Data.Item.TipRootComponentVersion.AllOccurrences.Pagination.Cursor;
         while (cursor != null)
         {
-            var occurrences = await GetAllOccurrencesFromCursor(
+            var occurrences = await GetRemainingOccurrences(
                 root.Data.Item.TipRootComponentVersion.Id,
                 propName,
                 cursor,
@@ -110,9 +110,9 @@ public partial class APS
         return root.Data.Item.TipRootComponentVersion;
     }
 
-    public async Task<Occurrences> GetAllOccurrencesFromCursor(string tipRootComponentVersionId, string propName, string cursor, Tokens tokens)
+    public async Task<Occurrences> GetRemainingOccurrences(string tipRootComponentVersionId, string propName, string cursor, Tokens tokens)
     {
-        var query = @"query GetAllOccurrences($componentVersionId: ID!, $propName: [String!]!, $cursor: String) {
+        var query = @"query GetRemainingOccurrences($componentVersionId: ID!, $propName: [String!]!, $cursor: String) {
             componentVersion(componentVersionId: $componentVersionId) {
                 allOccurrences(pagination: {cursor: $cursor, limit: 50}) {
                     pagination {
