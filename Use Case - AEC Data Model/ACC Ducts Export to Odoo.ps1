@@ -174,38 +174,25 @@ function Invoke-GraphQLQuery($query, $variables) {
     return $response.data
 }
 
-function Get-ApsAecDmHub($hubName) {
-    $query = @"
-    query GetHubs(`$hubName: String!) {
-        hubs(filter: {name: `$hubName}) {
-        pagination {
-            cursor
-        }
-        results {
-            name
-            id
-        }
-        }
-    }
-"@
 
-    $variables = @"
-    {
-        "hubName": "$hubName"
-    }
-"@
-    return Invoke-GraphQLQuery $query $variables
-}
-
-function Get-ApsAecDmProject($hubId, $projectName) {
+function Get-ApsAecDmElementGroup($hubName, $projectName, $fileUrn) {
     $query = @"
-    query GetProjects(`$hubId: ID!, `$projectName: String!) {
-        projects(hubId: `$hubId, filter: { name: `$projectName }) {
+    query GetElementGroups(`$hubName: String!, `$projectName: String!, `$fileUrn: [String!]!) {
+        hubs(filter: {name: `$hubName}, pagination: {limit: 1}) {
             results {
-                id
                 name
-                alternativeIdentifiers{
-                dataManagementAPIProjectId
+                id
+                projects(filter: {name: `$projectName}, pagination: {limit: 1}) {
+                    results {
+                        name
+                        id
+                        elementGroups(filter: {fileUrn: `$fileUrn}) {
+                            results {
+                                name
+                                id
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -214,62 +201,8 @@ function Get-ApsAecDmProject($hubId, $projectName) {
 
     $variables = @"
     {
-        "hubId":"$hubId",
-        "projectName": "$projectName"
-    }
-"@
-    return Invoke-GraphQLQuery $query $variables
-}
-
-# Doesn't work: message: "The following ID is malformed: {ACC_PROJECT_ID}"
-function Get-ApsAecDmProjectByDataManagementApiId($project) {
-    $query = @"
-    query GetProjectByDataManagementAPIId(`$dataManagementAPIProjectId: ID!) {
-        projectByDataManagementAPIId(dataManagementAPIProjectId: `$dataManagementAPIProjectId) {
-            id
-            name
-            alternativeIdentifiers {
-                dataManagementAPIProjectId
-            }
-            hub {
-                id
-                name
-            }
-        }
-    }
-"@
-
-    $variables = @"
-    {
-        "dataManagementAPIProjectId": "$($project.id.TrimStart("b."))"
-    }
-"@
-
-    return Invoke-GraphQLQuery $query $variables
-}
-
-function Get-ApsAecDmElementGroup($projectId, $fileUrn) {
-    $query = @"
-    query GetElementGroupByProjectAndFileUrn(`$projectId: ID!, `$fileUrn: [String!]) {
-        elementGroupsByProject(projectId: `$projectId, filter: { fileUrn: `$fileUrn }) {
-            pagination {
-                cursor
-            }
-            results {
-                name
-                id
-                alternativeIdentifiers {
-                    fileUrn
-                    fileVersionUrn
-                }
-            }
-        }
-    }
-"@
-
-    $variables = @"
-    {
-        "projectId": "$projectId",
+        "hubName": "$hubName",
+        "projectName": "$projectName",
         "fileUrn": "$fileUrn"
     }
 "@
@@ -493,10 +426,6 @@ $hub = $hubs | Where-Object { $_.attributes.name -eq $hubName }
 $projects = Get-ApsProjects $hub
 $project = $projects | Where-Object { $_.attributes.name -eq $projectName }
 
-$aecDmHub = Get-ApsAecDmHub $hub.attributes.name
-$aecDmProject = Get-ApsAecDmProject $aecDmHub.hubs.results[0].id $project.attributes.name
-
-$aecDmProjectId = $aecDmProject.projects.results[0].id
 Write-Log "Project: $($project.attributes.name)"
 
 $metadata = Get-ApsAccSubmittalMetadata $project
@@ -521,9 +450,9 @@ foreach ($submittal in $submittals) {
                 continue
             }
 
-            $elementGroupResult = Get-ApsAecDmElementGroup $aecDmProjectId $reference.id
-            $fileId = $elementGroupResult.elementGroupsByProject.results.id
-            $fileName = $elementGroupResult.elementGroupsByProject.results.name
+            $elementGroupResult = Get-ApsAecDmElementGroup $hubName $projectName $reference.id
+            $fileId = $elementGroupResult.hubs.results[0].projects.results[0].elementGroups.results[0].id
+            $fileName = $elementGroupResult.hubs.results[0].projects.results[0].elementGroups.results[0].name
             Write-Log "Starting APS AEC Data Model extraction for file: $fileName..."
 
             $precision = 5
