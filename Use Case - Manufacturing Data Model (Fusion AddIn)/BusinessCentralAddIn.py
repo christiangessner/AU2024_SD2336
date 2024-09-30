@@ -35,29 +35,23 @@ def command_created(args: adsk.core.CommandCreatedEventArgs):
         futil.add_handler(args.command.navigatingURL, browser_navigating, local_handlers=local_handlers)
         futil.add_handler(args.command.execute, command_execute, local_handlers=local_handlers)
 
-        design = app.activeProduct
-        root = design.rootComponent
+        args.command.isOKButtonVisible = False
 
         dataFile = app.activeDocument.dataFile
         if (dataFile is None):
             ui.messageBox('The Fusion File is not saved yet. Please save the file and try again.')
             return
 
+        url = f'{URL}?project={dataFile.parentFolder.parentProject.id}&item={dataFile.id}'
+
         inputs = args.command.commandInputs
-        args.command.isOKButtonVisible = False
+        browser_input = inputs.addBrowserCommandInput('browser_input', 'Browser Input', url, 800)
+        browser_input.isFullWidth = True
 
         #inputs.addStringValueInput('name', 'Name', root.name)
         #inputs.addStringValueInput('id', 'Item ID', dataFile.id)
         #inputs.addStringValueInput('project', 'Project ID', dataFile.parentFolder.parentProject.id)
         #inputs.addStringValueInput('hub', 'Hub ID', dataFile.parentProject.parentHub.id)
-
-        url = f'{URL}?project={dataFile.parentFolder.parentProject.id}&item={dataFile.id}'
-        #ui.messageBox(url)
-
-        # Create a browser input
-        minimum_height = 800
-        browser_input = inputs.addBrowserCommandInput('browser_input', 'Browser Input', url, minimum_height)
-        browser_input.isFullWidth = True
 
     except:
         futil.handle_error('command_created')
