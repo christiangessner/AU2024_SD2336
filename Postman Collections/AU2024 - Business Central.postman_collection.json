@@ -1,0 +1,361 @@
+{
+	"info": {
+		"_postman_id": "06776130-9d35-4b91-898b-2cf08bd02919",
+		"name": "AU2024 - Business Central",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6984622"
+	},
+	"item": [
+		{
+			"name": "$metadata",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json; charset=utf-8",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://api.businesscentral.dynamics.com/v2.0/{{TenantId}}/{{Environment}}/ODataV4/$metadata#Company('{{Company}}')",
+					"protocol": "https",
+					"host": [
+						"api",
+						"businesscentral",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"v2.0",
+						"{{TenantId}}",
+						"{{Environment}}",
+						"ODataV4",
+						"$metadata"
+					],
+					"hash": "Company('{{Company}}')"
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Companies",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.businesscentral.dynamics.com/v2.0/{{TenantId}}/{{Environment}}/ODataV4/Company?$select=Name,Id",
+					"protocol": "https",
+					"host": [
+						"api",
+						"businesscentral",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"v2.0",
+						"{{TenantId}}",
+						"{{Environment}}",
+						"ODataV4",
+						"Company"
+					],
+					"query": [
+						{
+							"key": "$select",
+							"value": "Name,Id"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "BOM Header and Lines (selected properties only)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.businesscentral.dynamics.com/v2.0/{{TenantId}}/{{Environment}}/ODataV4/Company('{{Company}}')/ProductionBOMs('1001')?$expand=ProductionBOMsProdBOMLine($select=Production_BOM_No,Version_Code,Line_No,No,Position,Description,Quantity_per)&$select=No,Description,Unit_of_Measure_Code",
+					"protocol": "https",
+					"host": [
+						"api",
+						"businesscentral",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"v2.0",
+						"{{TenantId}}",
+						"{{Environment}}",
+						"ODataV4",
+						"Company('{{Company}}')",
+						"ProductionBOMs('1001')"
+					],
+					"query": [
+						{
+							"key": "$expand",
+							"value": "ProductionBOMsProdBOMLine($select=Production_BOM_No,Version_Code,Line_No,No,Position,Description,Quantity_per)"
+						},
+						{
+							"key": "$select",
+							"value": "No,Description,Unit_of_Measure_Code"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Item",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.businesscentral.dynamics.com/v2.0/{{TenantId}}/{{Environment}}/ODataV4/Company('{{Company}}')/ItemCards('1001')",
+					"protocol": "https",
+					"host": [
+						"api",
+						"businesscentral",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"v2.0",
+						"{{TenantId}}",
+						"{{Environment}}",
+						"ODataV4",
+						"Company('{{Company}}')",
+						"ItemCards('1001')"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Item (selected properties only)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://api.businesscentral.dynamics.com/v2.0/{{TenantId}}/{{Environment}}/ODataV4/Company('{{Company}}')/ItemCards('1001')?$select=No,Description,Description_2,Blocked,Type",
+					"protocol": "https",
+					"host": [
+						"api",
+						"businesscentral",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"v2.0",
+						"{{TenantId}}",
+						"{{Environment}}",
+						"ODataV4",
+						"Company('{{Company}}')",
+						"ItemCards('1001')"
+					],
+					"query": [
+						{
+							"key": "$select",
+							"value": "No,Description,Description_2,Blocked,Type"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Item",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Description\": \"TEST ITEM created with Postman\",\n    \"Blocked\": false,\n    \"Type\": \"Inventory\",\n    \"Base_Unit_of_Measure\": \"PCS\",\n    \"Item_Category_Code\": \"PARTS\",\n    \"Inventory\": 0,\n    \"Net_Weight\": 0,\n    \"Gross_Weight\": 0,\n    \"Gen_Prod_Posting_Group\": \"MANUFACT\",\n    \"Inventory_Posting_Group\": \"FINISHED\",\n    \"Replenishment_System\": \"Purchase\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.businesscentral.dynamics.com/v2.0/{{TenantId}}/{{Environment}}/ODataV4/Company('{{Company}}')/ItemCards",
+					"protocol": "https",
+					"host": [
+						"api",
+						"businesscentral",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"v2.0",
+						"{{TenantId}}",
+						"{{Environment}}",
+						"ODataV4",
+						"Company('{{Company}}')",
+						"ItemCards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Item",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "If-Match",
+						"value": "W/\"JzIwOzEzNjUxNjM3ODM5NjgwMjk3NjAwMTswMDsn\"",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Description\": \"TEST ITEM created with Postman updated\",\n    \"Blocked\": false,\n    \"Type\": \"Inventory\",\n    \"Base_Unit_of_Measure\": \"PCS\",\n    \"Item_Category_Code\": \"PARTS\",\n    \"Inventory\": 0,\n    \"Net_Weight\": 0,\n    \"Gross_Weight\": 0,\n    \"Gen_Prod_Posting_Group\": \"MANUFACT\",\n    \"Inventory_Posting_Group\": \"FINISHED\",\n    \"Replenishment_System\": \"Purchase\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.businesscentral.dynamics.com/v2.0/{{TenantId}}/{{Environment}}/ODataV4/Company('{{Company}}')/ItemCards('1165')",
+					"protocol": "https",
+					"host": [
+						"api",
+						"businesscentral",
+						"dynamics",
+						"com"
+					],
+					"path": [
+						"v2.0",
+						"{{TenantId}}",
+						"{{Environment}}",
+						"ODataV4",
+						"Company('{{Company}}')",
+						"ItemCards('1165')"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "refreshTokenUrl",
+				"value": "https://login.microsoftonline.com/{{TenantId}}/oauth2/v2.0/token",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "body",
+				"type": "string"
+			},
+			{
+				"key": "scope",
+				"value": "https://api.businesscentral.dynamics.com/.default",
+				"type": "string"
+			},
+			{
+				"key": "clientSecret",
+				"value": "{{ClientSecret}}",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "client_credentials",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "https://login.microsoftonline.com/{{TenantId}}/oauth2/v2.0/token",
+				"type": "string"
+			},
+			{
+				"key": "redirect_uri",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "{{ClientId}}",
+				"type": "string"
+			},
+			{
+				"key": "tokenName",
+				"value": "Business Central Token",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "TenantId",
+			"value": ""
+		},
+		{
+			"key": "ClientId",
+			"value": ""
+		},
+		{
+			"key": "ClientSecret",
+			"value": ""
+		},
+		{
+			"key": "Environment",
+			"value": ""
+		},
+		{
+			"key": "Company",
+			"value": "CRONUS%20USA%2C%20Inc."
+		}
+	]
+}

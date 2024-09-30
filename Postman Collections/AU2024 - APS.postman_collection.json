@@ -1,0 +1,314 @@
+{
+	"info": {
+		"_postman_id": "fb163af3-e409-489c-912d-af14784a3832",
+		"name": "AU2024 - APS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6984622"
+	},
+	"item": [
+		{
+			"name": "AEC Data Model",
+			"item": [
+				{
+					"name": "GetElementGroups",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetElementGroups($hubName: String!, $projectName: String!, $fileUrn: [String!]!) {\n  hubs(filter: {name: $hubName}, pagination: {limit: 1}) {\n    results {\n      name\n      id\n      projects(filter: {name: $projectName}, pagination: {limit: 1}) {\n        results {\n          name\n          id\n          elementGroups(filter: {fileUrn: $fileUrn}) {\n            results {\n              name\n              id\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+								"variables": "{\n  \"hubName\": \"build_coolorange\",\n  \"projectName\": \"Aerospace Components Facility\",\n  \"fileUrn\": [\n    \"urn:adsk.wipprod:dm.lineage:alQ7KQhXS8yVN6bPw511jg\"\n    ]\n}"
+							}
+						},
+						"url": {
+							"raw": "https://developer.api.autodesk.com/aec/graphql",
+							"protocol": "https",
+							"host": [
+								"developer",
+								"api",
+								"autodesk",
+								"com"
+							],
+							"path": [
+								"aec",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetElementGroup Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetDuctsFromElementGroup($elementGroupId: ID!, $elementsFilter: String!, $cursor: String) {\n  elementsByElementGroup(\n    elementGroupId: $elementGroupId\n    filter: {query: $elementsFilter}\n    pagination: {limit: 100, cursor: $cursor}\n  ) {\n    pagination {\n      cursor\n      pageSize\n    }\n    results {\n      name\n      properties(\n        filter: {names: [\"Diameter\", \"Length\", \"Size\", \"Element Name\", \"Family Name\"]}\n      ) {\n        results {\n          name\n          value\n          definition {\n            units {\n              name\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+								"variables": "{\n  \"elementGroupId\": \"YWVjZH5vaVM3ZG1JOXZRZ0dXV2ZMSllHM2pLX0wyQ35hbFE3S1FoWFM4eVZONmJQdzUxMWpn\",\n  \"elementsFilter\": \"(property.name.category==Ducts or property.name.category=='Flex Ducts' or property.name.category=='Duct Fittings') and 'property.name.Element Context'==Instance\",\n  \"cursor\": null\n}"
+							}
+						},
+						"url": {
+							"raw": "https://developer.api.autodesk.com/aec/graphql",
+							"protocol": "https",
+							"host": [
+								"developer",
+								"api",
+								"autodesk",
+								"com"
+							],
+							"path": [
+								"aec",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MFG Data Model V2",
+			"item": [
+				{
+					"name": "GetProjectByDataManagementId",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetProject($projectId: ID!) {\n    projectByDataManagementAPIId(dataManagementAPIProjectId: $projectId) {\n        id\n        name\n        alternativeIdentifiers {\n            dataManagementAPIProjectId\n        }\n        hub {\n            id\n            name\n            propertyDefinitionCollections {\n                results {\n                    id\n                    name\n                    definitions {\n                        results {\n                            name\n                            id\n                        }\n                    }\n                }\n            }\n        }\n    }\n}",
+								"variables": "{\n  \"projectId\": \"a.YnVzaW5lc3M6Y29vbG9yYW5nZTE0IzIwMjIxMDIxNTcwMzEwMDA2\"\n}"
+							}
+						},
+						"url": {
+							"raw": "https://developer.api.autodesk.com/beta/graphql",
+							"protocol": "https",
+							"host": [
+								"developer",
+								"api",
+								"autodesk",
+								"com"
+							],
+							"path": [
+								"beta",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetTipRootComponentVersion",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetTipRootComponentVersion($hubId: ID!, $itemId: ID!, $propName: [String!]!) {\n    item(hubId: $hubId, itemId: $itemId) {\n        ... on DesignItem {\n            tipRootComponentVersion {\n                ...commonProps\n                allOccurrences(pagination: {limit: 50}) {\n                    pagination {\n                        pageSize\n                        cursor\n                    }\n                    results {\n                        id\n                        parentComponentVersion {\n                            id\n                        }\n                        componentVersion {\n                            ...commonProps\n                        }\n                    }\n                }\n            }\n        }\n    }\n}\n\nfragment commonProps on ComponentVersion {\n    id\n    lastModifiedOn\n    name\n    partNumber\n    partDescription\n    materialName\n    customProperties(filter: {names: $propName}) {\n    results {\n            name\n            value\n        }\n    }\n}\n",
+								"variables": "{\n  \"hubId\": \"urn:adsk.ace:prod.scope:4848fe8d-73f2-4ead-b104-c9f0d6c58963\",\n  \"itemId\": \"urn:adsk.wipprod:dm.lineage:XNxysPoGRIquUjcwYF50aw\",\n  \"propName\": \"ERP Number\"\n}"
+							}
+						},
+						"url": {
+							"raw": "https://developer.api.autodesk.com/beta/graphql",
+							"protocol": "https",
+							"host": [
+								"developer",
+								"api",
+								"autodesk",
+								"com"
+							],
+							"path": [
+								"beta",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetRemainingOccurrences",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetRemainingOccurrences($componentVersionId: ID!, $propName: [String!]!, $cursor: String) {\n    componentVersion(componentVersionId: $componentVersionId) {\n        allOccurrences(pagination: {cursor: $cursor, limit: 50}) {\n            pagination {\n                pageSize\n                cursor\n            }\n            results {\n                id\n                parentComponentVersion {\n                    id\n                }\n                componentVersion {\n                    ...commonProps\n                }\n            }\n        }\n    }\n}\n\nfragment commonProps on ComponentVersion {\n    id\n    lastModifiedOn\n    name\n    partNumber\n    partDescription\n    materialName\n    customProperties(filter: {names: $propName}) {\n    results {\n            name\n            value\n        }\n    }\n}\n",
+								"variables": "{\n  \"componentVersionId\": \"Y29tcH5EWmJ5ZnFYRDJlRllQMW5WYTZhZ1A4X0wyQ35IZWFpSzVkeE1MTHAxczhSdXE2U2h3X2FnYX5hd2dVbHRwbHZhclk5a051amoxTUVa\",\n  \"cursor\": \"4f5a7174415a4d5a63323373315670565972456d61542d32\",\n  \"propName\": \"ERP Number\"\n}"
+							}
+						},
+						"url": {
+							"raw": "https://developer.api.autodesk.com/beta/graphql",
+							"protocol": "https",
+							"host": [
+								"developer",
+								"api",
+								"autodesk",
+								"com"
+							],
+							"path": [
+								"beta",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetComponentVersionAsyncData",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetComponentVersionAsyncData($componentVersionId: ID!) {\n    componentVersion(componentVersionId: $componentVersionId) {\n        id\n        thumbnail {\n            status\n            signedUrl\n        }\n        physicalProperties {\n            status\n            volume {\n                value\n            }\n            mass {\n                value\n            }\n        }\n    }\n}",
+								"variables": "{\n  \"componentVersionId\": \"Y29tcH5EWmJ5ZnFYRDJlRllQMW5WYTZhZ1A4X0wyQ35IZWFpSzVkeE1MTHAxczhSdXE2U2h3X2FnYX5hd2dVbHRwbHZhclk5a051amoxTUVa\"\n}"
+							}
+						},
+						"url": {
+							"raw": "https://developer.api.autodesk.com/beta/graphql",
+							"protocol": "https",
+							"host": [
+								"developer",
+								"api",
+								"autodesk",
+								"com"
+							],
+							"path": [
+								"beta",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SetDynamicProperty",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation SetDynamicProperty($input: SetPropertiesInput!) {\n    setProperties(input: $input) {\n        targetId\n        properties {\n            value\n            displayValue\n        }\n    }\n}",
+								"variables": "{\n  \"input\": {\n    \"targetId\": \"Y29tcH5EWmJ5ZnFYRDJlRllQMW5WYTZhZ1A4X0wyQ35IZWFpSzVkeE1MTHAxczhSdXE2U2h3X2FnYX5hd2dVbHRwbHZhclk5a051amoxTUVa\",\n    \"propertyInputs\": {\n      \"propertyDefinitionId\": \"cHJvcGRlZn5WMVpaR3M2MUFBa2E1QmVvYW9sdTFOVmJ2WENHUkhaVX5WMVpaR3M2MUFBa2E1QmVvYW9sdTFOVmJ2WENHUkhaVX5CdXNpbmVzc19DZW50cmFsfnBhcmFtZXRlcnMuVjFaWkdzNjFBQWthNUJlb2FvbHUxTlZidlhDR1JIWlU6NGY1ZGJlODNmYzE0NDYzODkxMWZhZWMzNzhmMWQzZWMtMS4wLjA\",\n      \"value\": \"1028\"\n    }\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "https://developer.api.autodesk.com/beta/graphql",
+							"protocol": "https",
+							"host": [
+								"developer",
+								"api",
+								"autodesk",
+								"com"
+							],
+							"path": [
+								"beta",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "tokenName",
+				"value": "3-legged APS Token",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "body",
+				"type": "string"
+			},
+			{
+				"key": "refreshTokenUrl",
+				"value": "https://developer.api.autodesk.com/authentication/v2/token",
+				"type": "string"
+			},
+			{
+				"key": "scope",
+				"value": "{{Scope}}",
+				"type": "string"
+			},
+			{
+				"key": "clientSecret",
+				"value": "{{ClientSecret}}",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "{{ClientId}}",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "https://developer.api.autodesk.com/authentication/v2/token",
+				"type": "string"
+			},
+			{
+				"key": "authUrl",
+				"value": "https://developer.api.autodesk.com/authentication/v2/authorize",
+				"type": "string"
+			},
+			{
+				"key": "redirect_uri",
+				"value": "http://localhost:8080/api/auth/callback",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "ClientId",
+			"value": ""
+		},
+		{
+			"key": "ClientSecret",
+			"value": ""
+		},
+		{
+			"key": "Scope",
+			"value": "account:read data:read data:write data:search"
+		}
+	]
+}

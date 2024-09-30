@@ -1,0 +1,228 @@
+{
+	"info": {
+		"_postman_id": "7fea9761-5131-4be8-929c-1ee5ff3696e6",
+		"name": "AU2024 - Odoo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6984622"
+	},
+	"item": [
+		{
+			"name": "Connection",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"jsonrpc\": \"2.0\",\n    \"method\": \"call\",\n    \"params\": {\n        \"db\": \"{{DATABASE}}\",\n        \"login\": \"{{USER}}\",\n        \"password\": \"{{PASSWORD}}\",\n        \"context\": {}\n    },\n    \"id\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{ENDPOINT}}/web/session/authenticate",
+					"protocol": "https",
+					"host": [
+						"{{ENDPOINT}}"
+					],
+					"path": [
+						"web",
+						"session",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Products",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"model\": \"product.product\",\n    \"method\": \"search_read\",\n    \"args\": [\n      [[\"id\", \">\", 0]],\n      [\"id\", \"name\", \"list_price\", \"qty_available\", \"uom_id\", \"uom_po_id\", \"categ_id\"]\n    ],\n    \"kwargs\": {\n      \"limit\": 1000\n    }\n  },\n  \"id\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{ENDPOINT}}/web/dataset/call_kw",
+					"protocol": "https",
+					"host": [
+						"{{ENDPOINT}}"
+					],
+					"path": [
+						"web",
+						"dataset",
+						"call_kw"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Product",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"model\": \"product.product\",\n    \"method\": \"create\",\n    \"args\": [\n      {\n        \"name\": \"New Product 2\\\"\",\n        \"list_price\": 0,\n        \"image_1920\": \"BASE64ENCODED_IMAGE\"\n      }\n    ],\n    \"kwargs\": {\n    }\n  },\n  \"id\": 3\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{ENDPOINT}}/web/dataset/call_kw",
+					"protocol": "https",
+					"host": [
+						"{{ENDPOINT}}"
+					],
+					"path": [
+						"web",
+						"dataset",
+						"call_kw"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Delivery Orders",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"model\": \"stock.picking\",\n    \"method\": \"search_read\",\n    \"args\": [\n      [[\"id\", \">\", 0]],\n      [\"id\", \"name\", \"origin\", \"partner_id\", \"picking_type_id\", \"location_id\", \"location_dest_id\"]\n    ],\n    \"kwargs\": {\n      \"limit\": 10\n    }\n  },\n  \"id\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{ENDPOINT}}/web/dataset/call_kw",
+					"protocol": "https",
+					"host": [
+						"{{ENDPOINT}}"
+					],
+					"path": [
+						"web",
+						"dataset",
+						"call_kw"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Delivery Order",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"model\": \"stock.picking\",\n    \"method\": \"create\",\n    \"args\": [\n      {\n        \"partner_id\": false,\n        \"picking_type_id\": 2,\n        \"location_id\": 8,\n        \"location_dest_id\": 5,\n        \"origin\": \"Your Order Reference\"\n      }\n    ],\n    \"kwargs\": {\n    }\n  },\n  \"id\": 6\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{ENDPOINT}}/web/dataset/call_kw",
+					"protocol": "https",
+					"host": [
+						"{{ENDPOINT}}"
+					],
+					"path": [
+						"web",
+						"dataset",
+						"call_kw"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Stock Move",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"call\",\n  \"params\": {\n    \"model\": \"stock.move\",\n    \"method\": \"create\",\n    \"args\": [\n      {\n        \"picking_id\": 31,\n        \"product_id\": 195,\n        \"product_uom_qty\": 2,\n        \"product_uom\": 1,\n        \"location_id\": 8,\n        \"location_dest_id\": 5,\n        \"name\": \"Product Delivery Line\"\n      }    \n    ],\n    \"kwargs\": {\n    }\n  },\n  \"id\": 7\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{ENDPOINT}}/web/dataset/call_kw",
+					"protocol": "https",
+					"host": [
+						"{{ENDPOINT}}"
+					],
+					"path": [
+						"web",
+						"dataset",
+						"call_kw"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "USER",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "PASSWORD",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "DATABASE",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ENDPOINT",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
