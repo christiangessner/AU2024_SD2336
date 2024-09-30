@@ -12,6 +12,18 @@ public partial class APS
                 hub {
                     id
                     name
+                    propertyDefinitionCollections {
+                        results {
+                            id
+                            name
+                            definitions {
+                                results {
+                                    name
+                                    id
+                                }
+                            }
+                        }
+                    }                    
                 }
             }
         }";
@@ -27,37 +39,7 @@ public partial class APS
         return root.Data;
     }
 
-    public async Task<List<Collections.PropertyDefinitionCollection>> GetPropertyDefinitionCollections(string hubId, Tokens tokens)
-    {
-        var query = @"query GetPropertyDefinitionCollections($hubId:ID!) {
-            hub(hubId: $hubId) {
-                propertyDefinitionCollections {
-                    results {
-                        id
-                        name
-                        definitions {
-                            results {
-                                name
-                                id
-                            }
-                        }
-                    }
-                }
-            }
-        }";
-        var variables = new
-        {
-            hubId
-        };
-
-        var root = await GraphQLClient.Query<Collections.Root>(query, variables, tokens.InternalToken);
-        if (root == null)
-            throw new Exception("Failed to get project by data management API");
-
-        return root.Data.Hub.PropertyDefinitionCollections.Results;
-    }
-
-    public async Task<TipRoot.ComponentVersion> GetTipRootComponentVersion(string hubId, string itemId, string propName, Tokens tokens)
+    public async Task<TipRoot.TipRootComponentVersion> GetTipRootComponentVersion(string hubId, string itemId, string propName, Tokens tokens)
     {
         var query = @"query GetTipRootComponentVersion($hubId: ID!, $itemId: ID!, $propName: [String!]!) {
             item(hubId: $hubId, itemId: $itemId) {
@@ -74,7 +56,7 @@ public partial class APS
                                 parentComponentVersion {
                                     id
                                 }
-                                componentVersion {
+                                childComponentVersion: componentVersion {
                                     ...commonProps
                                 }
                             }
@@ -142,21 +124,25 @@ public partial class APS
                         parentComponentVersion {
                             id
                         }
-                        componentVersion {
-                            id
-                            lastModifiedOn
-                            name
-                            partNumber
-                            partDescription
-                            materialName
-                            customProperties(filter:{names: $propName}) {
-                                results {
-                                    name
-                                    value
-                                }
-                            }
+                        childComponentVersion: componentVersion {
+                            ...commonProps
                         }
                     }
+                }
+            }
+        }  
+        
+        fragment commonProps on ComponentVersion {
+            id
+            lastModifiedOn
+            name
+            partNumber
+            partDescription
+            materialName
+            customProperties(filter: {names: $propName}) {
+            results {
+                    name
+                    value
                 }
             }
         }";

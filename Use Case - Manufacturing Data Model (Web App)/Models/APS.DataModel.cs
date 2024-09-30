@@ -24,7 +24,7 @@ namespace Project
 
         [JsonPropertyName("alternativeIdentifiers")]
         public required AlternativeIdentifiers AlternativeIdentifiers { get; set; }
-        
+
         [JsonPropertyName("hub")]
         public required Hub Hub { get; set; }
     }
@@ -41,28 +41,10 @@ namespace Project
         public required string Id { get; set; }
         [JsonPropertyName("name")]
         public required string Name { get; set; }
-    }
-}
-
-namespace Collections
-{
-    public class Root
-    {
-        [JsonPropertyName("data")]
-        public required Data Data { get; set; }
-    }
-
-    public class Data
-    {
-        [JsonPropertyName("hub")]
-        public required Hub Hub { get; set; }
-    }
-
-    public class Hub
-    {
         [JsonPropertyName("propertyDefinitionCollections")]
         public required PropertyDefinitionCollections PropertyDefinitionCollections { get; set; }
     }
+
 
     public class PropertyDefinitionCollections
     {
@@ -80,7 +62,7 @@ namespace Collections
 
         [JsonPropertyName("definitions")]
         public required Definitions Definitions { get; set; }
-    }    
+    }
 
     public class Definitions
     {
@@ -95,7 +77,7 @@ namespace Collections
 
         [JsonPropertyName("name")]
         public required string Name { get; set; }
-    }  
+    }
 }
 
 namespace TipRoot
@@ -115,10 +97,10 @@ namespace TipRoot
     public class Item
     {
         [JsonPropertyName("tipRootComponentVersion")]
-        public required ComponentVersion TipRootComponentVersion { get; set; }
+        public required TipRootComponentVersion TipRootComponentVersion { get; set; }
     }
 
-    public class ComponentVersion : global::ComponentVersion
+    public class TipRootComponentVersion : ChildComponentVersion
     {
         [JsonPropertyName("allOccurrences")]
         public required Occurrences AllOccurrences { get; set; }
@@ -143,7 +125,7 @@ namespace AllOccurrences
     {
         [JsonPropertyName("allOccurrences")]
         public required Occurrences AllOccurrences { get; set; }
-    }    
+    }
 }
 
 namespace AsyncData
@@ -167,10 +149,10 @@ namespace AsyncData
 
         [JsonPropertyName("thumbnail")]
         public required Thumbnail Thumbnail { get; set; }
-        
+
         [JsonPropertyName("physicalProperties")]
         public required PhysicalProperties PhysicalProperties { get; set; }
-    }    
+    }
 }
 
 public class Occurrences
@@ -187,8 +169,8 @@ public class Occurrence
     [JsonPropertyName("id")]
     public required string Id { get; set; }
 
-    [JsonPropertyName("componentVersion")]
-    public required ComponentVersion ComponentVersion { get; set; }
+    [JsonPropertyName("childComponentVersion")]
+    public required ChildComponentVersion ChildComponentVersion { get; set; }
 
     [JsonPropertyName("parentComponentVersion")]
     public required ParentComponentVersion ParentComponentVersion { get; set; }
@@ -200,11 +182,11 @@ public class ParentComponentVersion
     public required string Id { get; set; }
 }
 
-public class ComponentVersion
+public class ChildComponentVersion
 {
     [JsonPropertyName("id")]
     public required string Id { get; set; }
-    
+
     [JsonPropertyName("lastModifiedOn")]
     public required string LastModifiedOn { get; set; }
 
@@ -228,12 +210,12 @@ public class PhysicalProperties
 {
     [JsonPropertyName("status")]
     public required string Status { get; set; }
-    
+
     [JsonPropertyName("volume")]
     public required PhysicalProperty Volume { get; set; }
 
     [JsonPropertyName("mass")]
-    public required PhysicalProperty Mass { get; set; }    
+    public required PhysicalProperty Mass { get; set; }
 }
 
 public class PhysicalProperty
@@ -270,7 +252,7 @@ public class Pagination
 {
     [JsonPropertyName("pageSize")]
     public required int PageSize { get; set; }
-    
+
     [JsonPropertyName("cursor")]
     public required string Cursor { get; set; }
 }

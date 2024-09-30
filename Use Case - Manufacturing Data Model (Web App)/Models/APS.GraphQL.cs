@@ -5,17 +5,15 @@ public partial class APS
     public async Task<List<BomRow>> GetComponentHierarchy(string dmProjectId, string itemId, Tokens tokens)
     {
         var project = await GetProjectId(dmProjectId, tokens);
-        var projectId = project.ProjectByDataManagementAPIId.Id;
         var hubId = project.ProjectByDataManagementAPIId.Hub.Id;
-        var propertyDefinitionCollections = await GetPropertyDefinitionCollections(hubId, tokens);
-        var propertyDefinitions = propertyDefinitionCollections.SelectMany(pdc => pdc.Definitions.Results)?.ToList();
+        var propertyDefinitions = project.ProjectByDataManagementAPIId.Hub.PropertyDefinitionCollections.Results.SelectMany(pdc => pdc.Definitions.Results)?.ToList();
         var propertyDefinition = propertyDefinitions?.Single(pd => pd.Name == CustomPropertyName);
         if (propertyDefinition == null)
             throw new Exception($"Property Definition {CustomPropertyName} not found");
 
         var tipRootComponentVersion = await GetTipRootComponentVersion(hubId, itemId, CustomPropertyName, tokens);
 
-        void CreateBomStructure(BomRow bomRow, ComponentVersion componentVersion)
+        void CreateBomStructure(BomRow bomRow, ChildComponentVersion componentVersion)
         {
             var children = tipRootComponentVersion.AllOccurrences.Results.Where(r => r.ParentComponentVersion.Id == componentVersion.Id).ToList();
             if (children.Count == 0)
@@ -24,9 +22,9 @@ public partial class APS
                 return;
             }
 
-            foreach (var occurrence in children.OrderBy(r => r.ComponentVersion.LastModifiedOn))
+            foreach (var occurrence in children.OrderBy(r => r.ChildComponentVersion.LastModifiedOn))
             {
-                var childComponentVersion = occurrence.ComponentVersion;
+                var childComponentVersion = occurrence.ChildComponentVersion;
                 if (bomRow.Children != null && bomRow.Children.Any(r => r.Id == childComponentVersion.Id))
                 {
                     var existingBomRow = bomRow.Children.Single(r => r.Id == childComponentVersion.Id);
@@ -41,7 +39,7 @@ public partial class APS
             }
         }
 
-        BomRow CreateBomRow(ComponentVersion componentVersion, BomRow? parentBomRow = null)
+        BomRow CreateBomRow(ChildComponentVersion componentVersion, BomRow? parentBomRow = null)
         {
             return new BomRow
             {

@@ -7,21 +7,6 @@ public partial class APS
                 targetId
                 properties {
                     value
-                    displayValue
-                    definition {
-                        id
-                        name
-                        specification
-                        isHidden
-                        isReadOnly
-                        isArchived
-                        description
-                        propertyBehavior
-                        units {
-                            id
-                            name
-                        }
-                    }
                 }
             }
         }";
@@ -56,7 +41,6 @@ public partial class APS
                 targetId
                 properties {
                     value
-                    displayValue
                 }
             }
         }";
